@@ -13,7 +13,7 @@ class Runner ():
         self.stored = {}
         self.funcs = ("sin", "cos", "tan", "sqrt", "mod", "min", "max", "sinh", "cosh", "tanh")
         self.ops = ("+", "-", "*", "/", "^", "!", "**", "~", "|", "&")
-        self.ordering = (("&", "|", "~", "^"), ("**", ), ("!", ), ("*", "/"), ("+", "-"), ("<-", ))
+        self.ordering = (("@", ), ("&", "|", "~", "^"), ("**", ), ("!", ), ("*", "/"), ("+", "-"), ("<-", ))
     def clear (self):
         self.opcodes = []
         self.input = ""
@@ -36,10 +36,6 @@ class Runner ():
         return False
     def getInput (self):
         inp = input("> ")
-        # while self.checkInput(inp):
-        #     print("\x1b[2K\x1b[1A"*2, end="")
-        #     inp = input("> ")
-        # print("\x1b[2K\x1b[1A"*2, end="")
         self.input = inp
     def dofunc (self, name, args):
         """
@@ -120,9 +116,34 @@ class Runner ():
                     tokens[i] = self.dofunc(tokens[i], b)
                     done = False
                     break
+        # parses matricies
+        done = False
+        while not done:
+            done = True
+            for i in range(len(tokens)):
+                token = tokens[i]
+                if (token == "["):
+                    ind = i+1
+                    depth = 1
+                    f = []
+                    b = []
+                    while depth > 0:
+                        token = tokens.pop(ind)
+                        if (token == "["):
+                            depth += 1
+                        elif (token == "]"):
+                            depth -= 1
+                            if (depth > 0):
+                                f.append(b)
+                                b = []
+                        else:
+                            b.append(token)
+                    tokens[i] = Matrix(f)
+                    done = False
+                    break
         done = False
         orderstep = 0
-        print(tokens)
+        # print(tokens)
         while not done:
             done = True
             found = False
@@ -135,7 +156,7 @@ class Runner ():
                     if (token == "&"):
                         tokens[i-1] = tokens[i-1] & tokens.pop(i+1)
                     elif (token == "|"):
-                        print(tokens)
+                        # print(tokens)
                         tokens[i-1] = tokens[i-1] | tokens.pop(i+1)
                     elif (token == "~"):
                         tokens[i+1] = ~ tokens[i+1]
@@ -160,6 +181,8 @@ class Runner ():
                         tokens.pop(i-1)
                         tokens.pop(i-1)
                         break
+                    elif (token == "@"):
+                        tokens[i-1] = tokens[i-1] @ tokens.pop(i+1)
                     tokens.pop(i)
                     break
             if (not found):
@@ -240,6 +263,9 @@ class Runner ():
                 build = ""
                 bcode = 0
                 i = al-1
+            # checks if char is part of matrix or set
+            if (char in "[]{}"):
+                ops.append(char)
             i += 1
         if (bcode == 1):
             # print(build)
@@ -266,7 +292,7 @@ class Runner ():
             try:
                 self.evaluate()
             except:
-                pass
+                raise
 
 main = Runner()
 main.run()
