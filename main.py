@@ -11,7 +11,7 @@ class Runner ():
         self.input = ""
         self.results = []
         self.stored = {}
-        self.funcs = ("sin", "cos", "tan", "sqrt", "mod", "min", "max", "sinh", "cosh", "tanh")
+        self.funcs = ("sin", "cos", "tan", "sqrt", "mod", "min", "max", "sinh", "cosh", "tanh", "avg", "abs", "sum")
         self.ops = ("+", "-", "*", "/", "^", "!", "**", "~", "|", "&")
         self.ordering = (("@", ), ("&", "|", "~", "^"), ("**", ), ("!", ), ("*", "/"), ("+", "-"), ("<-", ))
     def clear (self):
@@ -61,6 +61,12 @@ class Runner ():
             return min(args)
         elif (name == "max"):
             return max(args)
+        elif (name == "avg"):
+            return np.average(args)
+        elif (name == "abs"):
+            return abs(args[0])
+        elif (name == "sum"):
+            return sum(args)
     def process_tokens (self, tokens):
         """
         does actual expression evaluation
