@@ -8,6 +8,25 @@ def factorial (n):
         f *= i
     return f
 
+def qua (number):
+    """
+    converts from decimal to quaternary
+    """
+    number = bin(int(number))[2:]
+    print(number)
+    f = ""
+    find = -1
+    for i in range(len(number)):
+        if (i > find):
+            find = i
+            if (i < len(number)-1):
+                find += 1
+                print(find, len(number)-find-1, len(number)-find+1)
+                f = str(int(number[len(number)-find-1:len(number)-find+1], base=2)) + f
+            else:
+                f = str(int(number[-find-1], base=2)) + f
+    return "0q"+f
+
 class Matrix ():
     def __init__ (self, values):
         self.mat = values

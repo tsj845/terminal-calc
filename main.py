@@ -7,36 +7,32 @@ import numpy as np
 
 class Runner ():
     def __init__ (self):
-        self.opcodes = []
+        # current input
         self.input = ""
-        self.results = []
+        # variable storage
         self.stored = {}
-        self.funcs = ("sin", "cos", "tan", "sqrt", "mod", "min", "max", "sinh", "cosh", "tanh", "avg", "abs", "sum")
-        self.ops = ("+", "-", "*", "/", "^", "!", "**", "~", "|", "&")
+        # function names
+        self.funcs = ("sin", "cos", "tan", "sqrt", "mod", "min", "max", "sinh", "cosh", "tanh", "avg", "abs", "sum", "bin", "hex", "dec", "oct", "qua")
+        # operators
+        self.ops = ("+", "-", "*", "/", "^", "!", "**", "~", "|", "&", "@")
+        # operator precedence
         self.ordering = (("@", ), ("&", "|", "~", "^"), ("**", ), ("!", ), ("*", "/"), ("+", "-"), ("<-", ))
+        # help utility data
+        self.helpd = {
+            "conventions" : "understanding the help utility:\n\tcommas (\",\") are used to seperate items in a list e.x: 1, 2, 3\n\tellipses (\"...\") are used to indicate a variable number of entries e.x: avg(...\"numbers\")\n\t\"numbers\" is used to represent all REAL numbers\n\tsquare brackets (\"[\", \"]\") are used to represent matrix components and placeholder values\n\twords surrounded by quotations (\"word\") represent keywords for further help\n\t\"> \" is used to represent example input into the calculator",
+            "operands" : "operators:\n\t@ - matrix multiplication\n\t& - bitwise and\n\t| - bitwise or\n\t~ - bitwise not\n\t^ - bitwise xor\n\t** - exponentiation\n\t! - factorial\n\t* - multiplication\n\t/ - division\n\t+ - addition\n\t- - subtraction\n\t<- - \"assignment\"\n\ttype \"precedence\" for help on operator precedence",
+            "matricies" : "defining matricies:\n\t> [...[...\"numbers\",],]\n\nusing matricies:\n\t> MAT1 @ MAT2",
+            "assignment" : "> x <- 10\n> x * x\n> 100",
+            "numbers" : "using non-base 10:\n\tto use non-base 10 numbers type \"0[id][number in base \"id\"]\"\n\tfloat - 0f\n\tbinary - 0b\n\tquaternary - 0q\n\toctal - 0o\n\tdecimal - 0d\n\tbase 12 - 0p\n\thexadecimal - 0x\n\tbase 36 - 0t",
+            "funcs" : "function list:\n\tsin - sine\n\tcos - cosine\n\ttan - tangent\n\tsinh - hyperbolic-sine\n\tcosh - hyperbolic-cosine\n\ttanh - hyperbolic-tangent\n\tsqrt - square root\n\tmod - modulo (remainder)\n\tmin - minimum\n\tmax - maximum\n\tavg - average\n\tabs - absolute value\n\tsum - summation\n\tbin - to binary\n\tqua - to quaternary\n\toct - to octal\n\tdec - to decimal\n\thex - to hexadecimal",
+            "precedence" : "operator precedence:\n\tprecedence is as follows\n\t@, (&, |, ~, ^), **, !, (*, /), (+, -), <-",
+        }
     def clear (self):
-        self.opcodes = []
         self.input = ""
-        self.results = []
         self.stored = {}
-    def checkInput (self, inp):
-        i = 0
-        while i < len(inp):
-            char = inp[i]
-            if (char.isalpha()):
-                alph = i
-                construct = ""
-                while alph < len(inp) and inp[alph].isalpha():
-                    construct += inp[alph]
-                    alph += 1
-                if (alph not in self.stored and alph not in self.funcs):
-                    return True
-                i = alph
-            i += 1
-        return False
     def getInput (self):
         inp = input("> ")
-        self.input = inp
+        self.input = inp.strip()
     def dofunc (self, name, args):
         """
         processes functions
@@ -67,6 +63,16 @@ class Runner ():
             return abs(args[0])
         elif (name == "sum"):
             return sum(args)
+        elif (name == "bin"):
+            return bin(args[0])
+        elif (name == "hex"):
+            return hex(args[0])
+        elif (name == "dec"):
+            return int(args[0])
+        elif (name == "oct"):
+            return oct(args[0])
+        elif (name == "qua"):
+            return qua(args[0])
     def process_tokens (self, tokens):
         """
         does actual expression evaluation
@@ -287,6 +293,21 @@ class Runner ():
                 ops.append(float(build))
         # print(ops, "UNPROCESSED")
         print(self.process_tokens(ops))
+    def help (self):
+        """
+        runs the help utility
+        """
+        query = self.input.split(" ", 1)[1] if " " in self.input else ""
+        # open interactive
+        if (query == ""):
+            print("entering interactive help utility, type \"exit\" to quit, \"conventions\" for help on this utility, \"operands\" for a list of operators, \"matricies\" for help on matricies, \"numbers\" for help on numbers, and \"funcs\" for a list of functions")
+            inp = input("help> ")
+            while inp != "exit":
+                print(f"help on {inp}:\n{self.helpd[inp]}" if inp in self.helpd.keys() else f"no help entry found for {inp}")
+                inp = input("help> ")
+        # help on a single thing
+        else:
+            print(f"help on {query}:\n{self.helpd[query]}" if query in self.helpd.keys() else f"no help entry found for {query}")
     def run (self):
         """
         runs the calculator
@@ -294,6 +315,9 @@ class Runner ():
         while True:
             # gets input
             self.getInput()
+            if (self.input.startswith("help")):
+                self.help()
+                continue
             # evaluates input
             try:
                 self.evaluate()
